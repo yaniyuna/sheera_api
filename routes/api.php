@@ -17,6 +17,10 @@ use App\Http\Controllers\API\SkenarioPanggilanPalsuController;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+Route::get('/health', function () {
+    return response()->json(['status' => 'ok']);
+});
+
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
     
     // Endpoint untuk mengubah status laporan oleh admin
