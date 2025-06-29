@@ -17,10 +17,6 @@ use App\Http\Controllers\API\SkenarioPanggilanPalsuController;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::get('/health', function () {
-    return response()->json(['status' => 'ok']);
-});
-
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
     
     // Endpoint untuk mengubah status laporan oleh admin
@@ -55,7 +51,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // Rute untuk Skenario Panggilan Palsu
     Route::get('/skenario-panggilan', [SkenarioPanggilanPalsuController::class, 'index']);
     
-    // Anda bisa tambahkan route lain di sini
     // Contoh:
     // Route::apiResource('/kontak-darurat', KontakDaruratController::class);
     // Route::get('/skenario-panggilan', [SkenarioPanggilanPalsuController::class, 'index']);
