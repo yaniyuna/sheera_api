@@ -1,11 +1,5 @@
-# Builder - Untuk menginstall dependensi dan menyiapkan file
+# Stage 1: Builder - Untuk menginstall dependensi dan menyiapkan file
 FROM php:8.2-fpm-alpine AS builder
-
-# Install dependencies yang dibutuhkan sistem
-RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
-    && apk add --no-cache postgresql-dev \
-    && docker-php-ext-install pdo pdo_pgsql \
-    && apk del .build-deps
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -14,7 +8,8 @@ WORKDIR /app
 
 # Copy file composer & install dependensi Laravel
 COPY composer.json composer.lock ./
-RUN composer install --no-interaction --no-plugins --no-scripts --prefer-dist --no-dev
+# Hapus --no-dev agar package untuk testing (jika ada) ikut terinstall
+RUN composer install --no-interaction --no-plugins --no-scripts --prefer-dist
 
 # Copy sisa file proyek
 COPY . .
@@ -22,20 +17,27 @@ COPY . .
 # Jalankan perintah build Laravel
 RUN php artisan view:cache
 RUN php artisan route:cache
-# RUN php artisan config:cache
+
+# RUN php artisan config:cache 
 RUN php artisan storage:link
 
 
 # Stage 2: Final Image - Image yang akan dijalankan di produksi
 FROM php:8.2-fpm-alpine
 
-# Install ekstensi PHP yang dibutuhkan oleh Laravel di stage final
-# memastikan driver ada di aplikasi yang berjalan
-RUN apk add --no-cache $PHPIZE_DEPS \
-    && apk add --no-cache postgresql-dev \
-    && docker-php-ext-install pdo pdo_pgsql bcmath \
+# Install semua ekstensi PHP yang dibutuhkan oleh Laravel dalam satu perintah
+RUN apk add --no-cache \
+    # Dependensi yang dibutuhkan saat runtime
+    postgresql-libs \
+    libzip \
+    libpng \
+    # Dependensi sementara yang dibutuhkan hanya saat build
+    && apk add --no-cache --virtual .build-deps $PHPIZE_DEPS postgresql-dev libzip-dev libpng-dev \
+    # Install ekstensi PHP
+    && docker-php-ext-install pdo pdo_pgsql bcmath zip gd \
+    # Hapus dependensi build yang sudah tidak diperlukan untuk memperkecil ukuran image
     && apk del .build-deps
-# ------------------------------------
+# ---------------------------------------------
 
 WORKDIR /app
 
