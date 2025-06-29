@@ -17,7 +17,7 @@ COPY . .
 # Jalankan perintah build Laravel
 RUN php artisan view:cache
 RUN php artisan route:cache
-
+# config:cache masih kita nonaktifkan sementara untuk debugging
 # RUN php artisan config:cache 
 RUN php artisan storage:link
 
@@ -47,6 +47,16 @@ COPY --from=builder /app .
 # Atur kepemilikan file agar bisa ditulis oleh web server
 RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache
 RUN chmod -R 775 /app/storage /app/bootstrap/cache
+
+
+# --- TAMBAHAN PENTING ADA DI SINI ---
+# Beri jeda 30 detik untuk memastikan layanan database di Render sudah siap.
+RUN echo "Waiting 30 seconds for database to be ready..." && sleep 30
+
+# Jalankan migrasi untuk membuat semua tabel di database.
+RUN echo "Running database migrations..." && php artisan migrate --force
+# ------------------------------------
+
 
 # Expose port
 EXPOSE 8000
