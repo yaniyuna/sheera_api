@@ -22,7 +22,7 @@ RUN composer install --no-interaction --no-plugins --no-scripts --prefer-dist --
 COPY . .
 
 # Generate key aplikasi dan cache untuk production
-RUN php artisan key:generate --force
+
 RUN php artisan config:cache
 RUN php artisan route:cache
 RUN php artisan view:cache
