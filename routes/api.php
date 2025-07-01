@@ -26,8 +26,6 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     // Endpoint untuk CRUD User oleh admin
     // URL: /api/admin/users
     //Route::apiResource('/users', App\Http\Controllers\API\UserController::class);
-
-    // Anda bisa tambahkan endpoint admin lainnya di sini
 });
 
 // Endpoint yang HARUS login terlebih dahulu
